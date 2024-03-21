@@ -1,58 +1,61 @@
-const Category = require("../models/category")
-const Product = require("../models/productModel")
-const  slugify = require ('slugify');//chuyển đổi một chuỗi thành một chuỗi 
+const Category = require("../models/category");
+// const slugify = require("slugify"); //chuyển đổi một chuỗi thành một chuỗi
 
 const list = async (req, res) => {
-    const category = await Category.find({}).sort({createAt: -1}).exec();
-    res.json(category);
-}
-const read = async (req, res) => {
-    console.log(req.params.slug);
-    const category = await Category.find({ slug: req.params.slug }).exec();
-    const products = await Product.find({ category })
-        .populate('category')
-        .exec();
-    res.json({
-        category,
-        products
-    });
-}
+  const category = await Category.find({}).sort({ createAt: -1 }).exec();
+  res.status(200).json(category);
+};
+const getOne = async (req, res) => {
+  try {
+    const idCate = req.params.Id;
+    console.log(idCate);
+    const cate = await Category.findById(idCate);
+    if (!cate) {
+      res.status(404).json({ err: "not/found" });
+    }
+    res.status(200).json(cate);
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+};
 const update = async (req, res) => {
-    const { name } = req.body;
-    const category = await Category.findOneAndUpdate(
-        { slug: req.params.slug },
-        { name, slug: slugify(name) },
-        { new: true }
-    );
-
-    res.json(category);
-
-}
+  const Id = req.params.Id;
+  const category = await Category.findOneAndUpdate(Id, req.body, { new: true });
+  if (!category) {
+    res.status(404).json({ err: "not/found" });
+  }
+  res.status(200).json(category);
+};
 const create = async (req, res) => {
-    try {
-        const { name } = req.body;
-        const category = await new Category({ name, slug: slugify(name) }).save();
-        res.json(category);
-    } catch (error) {
-        res.status(400).json({
-            message: "Tạo danh mục không thành công"
-        })
+  try {
+    const category = await Category.create(req.body);
+    if (!category) {
+      res.status(404).json({ err: "not/found" });
     }
-}
+    res.status(200).json(category);
+  } catch (error) {
+    res.status(400).json({
+      message: "Tạo danh mục không thành công",
+    });
+  }
+};
 const remove = async (req, res) => {
-    try {
-        const category = await Category.findOneAndDelete({ slug: req.params.slug })
-        res.json(category)
-    } catch (error) {
-        console.log('errr')
+  try {
+    const Id = req.params.Id;
+    const category = await Category.findOneAndDelete(Id);
+    if (!category) {
+      res.status(404).json({ err: "not/found" });
     }
-
-}
+    res.status(200).json({ err: "delete success !" });
+  } catch (error) {
+    console.log("errr");
+  }
+};
 
 module.exports = {
-    list: list,
-    read: read,
-    update: update,
-    create: create,
-    remove: remove
-}
+  list: list,
+  getOne: getOne,
+  update: update,
+  create: create,
+  remove: remove,
+};

@@ -4,19 +4,18 @@ const expressJwt = require("express-jwt");
 
 const signup = async (req, res) => {
   try {
-    const { email, name, password } = req.body;
-    const user = await new userModel({ email, name, password }).save();
-    res.json(user);
+    const user = await userModel(req.body);
+    res.status(200).json(user, {msg: "tạo tk thành công"});
   } catch (error) {
     res.json({
-      msg: "tao  tk khong thanh cong !",
+      msg: "tạo tk thanh cong !",
     });
   }
 };
 
 const signin = async (req, res) => {
   const { email, password } = req.body;
-  const user = await userModel.findOne({ email }).exec();
+  const user = await userModel.findOne({email}).exec();
   if (!user) {
     res.status(400).json({
       msg: "tk khong ton tai",
@@ -47,14 +46,14 @@ const signout = (req, res) => {
   });
 };
 
-// const requireSignin = expressJwt({
-//   //ma bm
-//   secret: "123456",
-//   // Sau khi decode xong thì tạo ra 1 thuộc tính req.auth và gán thông tin decode
-//   userProperty: "auth", // req.auth
-//   // t.toan decode token
-//   algorithms: ["HS256"],
-// });
+const requireSignin = expressJwt({  
+  //ma bm
+  secret: "123456",
+  // Sau khi decode xong thì tạo ra 1 thuộc tính req.auth và gán thông tin decode
+  userProperty: "auth", // req.auth
+  // t.toan decode token
+  algorithms: ["HS256"],
+});
 
 
 
@@ -85,7 +84,7 @@ module.exports = {
   signup: signup,
   signin: signin,
   signout: signout,
-//   requireSignin: requireSignin,
+  requireSignin: requireSignin,
   isAuth: isAuth,
   isAdmin: isAdmin,
 };

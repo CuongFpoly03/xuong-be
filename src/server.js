@@ -4,14 +4,10 @@ const path = require('path');
 // const {readFileSync} = require('fs');//cần đọc hoặc ghi dữ liệu từ/đến file trên hệ thống tệp (file system), bạn có thể sử dụng fs để thực hiện các thao tác này. 
 const swaggerUI = require("swagger-ui-express");//được sử dụng để hiển thị và tương tác với tài liệu API
 const swaggerJSDoc = require("swagger-jsdoc")//là một thư viện giúp tạo ra tài liệu API Swagger/OpenAPI thông qua các chú thích (jsdoc) trong mã nguồn của minh.
-const {dirname} = require("path");
+// const {dirname} = require("path");
+const route = require("./routes/index")
 const connectDB = require("./config/mongoose")
 const morganLogger = require("./config/morgan");
-const userRoutes = require("./routes/userRoutes");
-const productRoutes = require("./routes/productRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
-const cartRoutes = require("./routes/cartRoutes");
-const authRoutes = require("./routes/authRoutes");
 require('dotenv').config();
 const app = express();
 
@@ -40,14 +36,11 @@ connectDB();
 
 //connect cors
 app.use(express.json());
+app.use(express.urlencoded({extended: true}))
 app.use(cors());
 
 //connect routes
-app.use("/api/user", userRoutes)
-app.use("/api/product", productRoutes)
-app.use("/api/cart", cartRoutes)
-app.use("/api/auth", authRoutes)
-app.use("/api/category", categoryRoutes)
+route(app);
 
 
 //section option
@@ -57,7 +50,7 @@ app.use("api/docs", swaggerUI.serve, swaggerUI.setup(specs))
 //connect cors
 app.use(cors);
 
-const port = process.env.PORT || 8000
+const port = process.env.PORT || 9000
 app.listen(port, () => {
     console.log("success !", port);
 })  
