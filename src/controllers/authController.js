@@ -5,7 +5,7 @@ const expressJwt = require("express-jwt");
 const signup = async (req, res) => {
   try {
     const user = await userModel(req.body);
-    res.status(200).json(user, {msg: "tạo tk thành công"});
+    res.status(200).json(user, { msg: "tạo tk thành công" });
   } catch (error) {
     res.json({
       msg: "tạo tk thanh cong !",
@@ -15,7 +15,7 @@ const signup = async (req, res) => {
 
 const signin = async (req, res) => {
   const { email, password } = req.body;
-  const user = await userModel.findOne({email}).exec();
+  const user = await userModel.findOne({ email }).exec();
   if (!user) {
     res.status(400).json({
       msg: "tk khong ton tai",
@@ -46,16 +46,16 @@ const signout = (req, res) => {
   });
 };
 
-const requireSignin = expressJwt({  
-  //ma bm
-  secret: "123456",
-  // Sau khi decode xong thì tạo ra 1 thuộc tính req.auth và gán thông tin decode
-  userProperty: "auth", // req.auth
-  // t.toan decode token
-  algorithms: ["HS256"],
-});
-
-
+const requireSignin = () => {
+  expressJwt({
+    //ma bm
+    secret: "123456",
+    // Sau khi decode xong thì tạo ra 1 thuộc tính req.auth và gán thông tin decode
+    userProperty: "auth", // req.auth
+    // t.toan decode token
+    algorithms: ["HS256"],
+  });
+};
 
 const isAuth = (req, res, next) => {
   // Kiểm tra điều kiện trả về true hoặc false
