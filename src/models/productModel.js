@@ -6,9 +6,9 @@ const productSchema = new mongoose.Schema(
     namePro: {
       type: String,
       trim: true,
-      required: true,
       maxlength: 255,
       text: true,
+      required: true,
     },
     imgPro: {
       type: Array,
@@ -20,13 +20,15 @@ const productSchema = new mongoose.Schema(
       maxlength: 32,
     },
     quantityPro: Number,
-    colorPro: {
-      type: String,
-      enum: ["black", "brown", "white", "blue"],
-    },
+    descriptionPro: { type: String, require: true },
+   
     category: {
       type: ObjectId,
-      ref: "Category",
+      ref: "categorys",
+    },
+    user: {
+      type: ObjectId,
+      ref: "users",
     },
   },
   {

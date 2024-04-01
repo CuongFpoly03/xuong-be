@@ -3,7 +3,7 @@
 
 const connectDB = async() => {
     try {
-        await mongdb.connect("mongodb://localhost:27017/practice"   );
+        await mongdb.connect(process.env.URL_DB);
         console.log("Mongodb success !");
     } catch (error) {
         console.log(error.message);

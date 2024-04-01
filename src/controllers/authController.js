@@ -1,90 +1,84 @@
-const userModel = require("../controllers/userController");
+const userModel = require("../models/userModel");
+const bcryptjs = require("bcryptjs");
+const { registerSchema, loginSchema } = require("../validations/auth");
 const jwt = require("jsonwebtoken");
-const expressJwt = require("express-jwt");
-
-const signup = async (req, res) => {
+const register = async (req, res, next) => {
   try {
-    const user = await userModel(req.body);
-    res.status(200).json(user, { msg: "tạo tk thành công" });
+    const { email, password, username } = req.body;
+    const { error } = registerSchema.validate(req.body);
+    if (error) {
+      const errors = error.details.map((err) => err.message);
+      return res.status(400).json({
+        message: errors,
+      });
+    }
+    const userEmail = await userModel.findOne({ email });
+    //check email
+    if (userEmail) {
+      return res.status(400).json({
+        message: "email này đã tồn tại !",
+      });
+    }
+    const salt = bcryptjs.genSaltSync(10);
+    const hashPw = await bcryptjs.hash(password, salt);
+
+    //create
+    const user = await userModel.create({
+      email,
+      username,
+      password: hashPw,
+    });
+
+    user.password = undefined;
+    return res.status(201).json({
+      message: "register successfully",
+      data: user,
+    }); 
   } catch (error) {
-    res.json({
-      msg: "tạo tk thanh cong !",
-    });
+    next(error);
   }
 };
 
-const signin = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await userModel.findOne({ email }).exec();
-  if (!user) {
-    res.status(400).json({
-      msg: "tk khong ton tai",
-    });
-  }
-  if (!user.authenticate(password)) {
-    res.json({
-      msg: "khong hop le",
-    });
-  }
-  const tokens = jwt.sign({ _id: user._id }, "123456");
-  res.cookie("token", tokens, { expire: new Date() + 9999 });
-  res.json({
-    tokens,
-    user: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-  });
-};
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const { error } = loginSchema.validate(req.body);
+    if (error) {
+      const errors = error.details.map((err) => err.message);
+      return res.status(400).json({
+        message: errors,
+      });
+    }
+    const checkuser = await userModel.findOne({ email });
+    if (!checkuser) {
+      return res.status(400).json({
+        message: "email này k tồn tại !",
+      });
+    }
+    //ss pw
+    const comparePw = await bcryptjs.compare(password, checkuser.password);
+    if (!comparePw)
+      return res.status(400).json({
+        message: "password không đúng !",
+      });
 
-const signout = (req, res) => {
-  res.clearCookie("tokens");
-  res.json({
-    msg: "lgout thanh cong",
-  });
-};
-
-const requireSignin = () => {
-  expressJwt({
-    //ma bm
-    secret: "123456",
-    // Sau khi decode xong thì tạo ra 1 thuộc tính req.auth và gán thông tin decode
-    userProperty: "auth", // req.auth
-    // t.toan decode token
-    algorithms: ["HS256"],
-  });
-};
-
-const isAuth = (req, res, next) => {
-  // Kiểm tra điều kiện trả về true hoặc false
-  let user = req.profile && req.auth && req.profile._id == req.auth._id;
-
-  // Nếu false ( không phải thành viên hệ thống)
-  if (!user) {
-    res.json({
-      msg: "truy cap bi tu choi",
+    //generate tk
+    const token = jwt.sign({ _id: checkuser._id }, process.env.TOKEN_SECRET, {
+      expiresIn: "1h",
     });
-  }
-  next();
-};
-const isAdmin = (req, res, next) => {
-  console.log(req.profile.role);
-  // nếu role == 0 ( nghĩa là quyền là member thì thông báo)
-  if (req.profile.role === 0) {
-    return res.status(403).json({
-      msg: "Bạn không có quyền truy cập",
+
+    checkuser.password = undefined;
+    return res.status(200).json({
+      message: "Login successfully !",
+      token,
+      user: checkuser,
     });
+  } catch (error) {
+    next(error);
   }
-  next();
 };
 
 module.exports = {
-  signup: signup,
-  signin: signin,
-  signout: signout,
-  requireSignin: requireSignin,
-  isAuth: isAuth,
-  isAdmin: isAdmin,
+  register: register,
+  login: login,
 };

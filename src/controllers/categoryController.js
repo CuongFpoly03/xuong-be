@@ -20,7 +20,7 @@ const getOne = async (req, res) => {
 };
 const update = async (req, res) => {
   const Id = req.params.Id;
-  const category = await Category.findOneAndUpdate(Id, req.body, { new: true });
+  const category = await Category.findOneAndUpdate({_id: Id}, req.body, { new: true });
   if (!category) {
     res.status(404).json({ err: "not/found" });
   }

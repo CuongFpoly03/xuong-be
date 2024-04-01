@@ -1,14 +1,19 @@
 const Product = require("../models/productModel");
+const { validateCreateAndUpdate } = require("../validations/product");
 // const slugify = require("slugify"); //chuyển đổi một chuỗi thành một chuỗi
 
 const list = async (req, res) => {
-  const Products = await Product.find({}).sort({ createAt: -1 }).exec();
-  res.status(200).json(Products);
+  try {
+      const Products = await Product.find().populate('category').populate('user');
+      res.status(200).json(Products);
+  } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 const getOne = async (req, res) => {
   try {
     const Idpro = req.params.Id;
-    const product = await Product.findById(Idpro);
+    const product = await Product.findById(Idpro).populate('category').populate('user');
     if (!product) {
       res.status(404).json({ err: "not/found" });
     }
@@ -19,15 +24,31 @@ const getOne = async (req, res) => {
 };
 const update = async (req, res) => {
   const Id = req.params.Id;
-  const product = await Product.findOneAndUpdate(Id, req.body, { new: true });
-  if (!product) {
-    res.status(404).json({ err: "not/found" });
+  const {error} = validateCreateAndUpdate.validate(req.body);
+  if(error) {
+    const errors = error.details.map((err) => err.message);
+    return res.status(400).json({
+      message: errors,
+    })
   }
-  res.status(200).json(product);
+  const product = await Product.findOneAndUpdate({ _id: Id }, req.body, { new: true });
+  if (!product) {
+    return res.status(404).json({ err: "not/found" });
+  }
+  return res.status(200).json(product);
 };
+
 const create = async (req, res) => {
   try {
-    const product = await Product.create(req.body);
+    // const {namePro, imgPro, pricePro, quantityPro, descriptionPro, category} = req.body;
+    const {error} = validateCreateAndUpdate.validate(req.body);
+    if(error) {
+      const errors = error.details.map((err) => err.message);
+      return res.status(400).json({
+        message: errors,
+      })
+    } 
+    const product = await Product.create({ ...req.body, user: res.locals.id });
     if (!product) {
       res.status(404).json({ err: "not/found" });
     }
@@ -38,6 +59,8 @@ const create = async (req, res) => {
     });
   }
 };
+
+
 const remove = async (req, res) => {
   try {
     const Id = req.params.Id;

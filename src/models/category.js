@@ -8,13 +8,7 @@ const categorySchema = new mongoose.Schema(
       minlength: [3, "Too short"],
       maxlength: [32, "Too Long"],
     },
-    slug: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      index: true,
-    },
   },
   { timestamps: true, versionKey: false }
 );
-module.exports = mongoose.model("categories", categorySchema);
+module.exports = mongoose.model("categorys", categorySchema);
