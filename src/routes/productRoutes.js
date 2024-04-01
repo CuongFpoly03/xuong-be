@@ -143,6 +143,8 @@ route.delete("/delete/:Id",productController.remove)
  *         description: OK
  */
 route.put("/update/:Id",productController.update)
+route.get("/relate/:cateId", productController.relatedProduct)
+
 
 
 module.exports= route;

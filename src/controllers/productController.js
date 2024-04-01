@@ -74,10 +74,21 @@ const remove = async (req, res) => {
   }
 };
 
+
+const relatedProduct = async (req, res) => {
+  try {
+      const product = await Product.find({
+          category: req.params.cateId,
+          _id: { $ne: req.params.productId },
+      });
+      return res.status(StatusCodes.OK).json(product);
+  } catch (error) {}
+};
 module.exports = {
   list: list,
   getOne: getOne,
   update: update,
   create: create,
   remove: remove,
+  relatedProduct: relatedProduct
 };
