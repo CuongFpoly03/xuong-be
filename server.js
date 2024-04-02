@@ -5,10 +5,10 @@ const cors = require("cors"); // ngăn chặn các yêu cầu http
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express"); //là một thư viện giúp tạo ra tài liệu API Swagger/OpenAPI thông qua các chú thích (jsdoc) trong mã nguồn của minh.
 // const {dirname} = require("path");
-const route = require("./routes/index");
-const connectDB = require("./config/mongoose");
-const morganLogger = require("./config/morgan");
-const connectEngine = require("./config/engine");
+const route = require("./src/routes/index");
+const connectDB = require("./src/config/mongoose");
+const morganLogger = require("./src/config/morgan");
+const connectEngine = require("./src/config/engine");
 const app = express();
 require("dotenv").config();
 connectEngine(app);
