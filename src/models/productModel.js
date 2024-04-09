@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const productSchema = new mongoose.Schema(
   {
@@ -12,7 +13,9 @@ const productSchema = new mongoose.Schema(
     },
     imgPro: {
       type: Array,
+      of: Object,
     },
+    thumbnail: { type: String },
     pricePro: {
       type: Number,
       required: true,
@@ -20,8 +23,10 @@ const productSchema = new mongoose.Schema(
       maxlength: 32,
     },
     quantityPro: Number,
+    color: String,
+    size: String,
     descriptionPro: { type: String, require: true },
-   
+
     category: {
       type: ObjectId,
       ref: "categorys",
@@ -36,5 +41,5 @@ const productSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
-
+productSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("products", productSchema);

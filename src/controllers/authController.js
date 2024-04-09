@@ -4,14 +4,14 @@ const { registerSchema, loginSchema } = require("../validations/auth");
 const jwt = require("jsonwebtoken");
 const register = async (req, res, next) => {
   try {
-    const { email, password, username } = req.body;
-    const { error } = registerSchema.validate(req.body);
-    if (error) {
-      const errors = error.details.map((err) => err.message);
-      return res.status(400).json({
-        message: errors,
-      });
-    }
+    const { email, password, username, address, phone } = req.body;
+    // const { error } = registerSchema.validate(req.body);
+    // if (error) {
+    //   const errors = error.details.map((err) => err.message);
+    //   return res.status(400).json({
+    //     message: errors,
+    //   });
+    // }
     const userEmail = await userModel.findOne({ email });
     //check email
     if (userEmail) {
@@ -27,12 +27,14 @@ const register = async (req, res, next) => {
       email,
       username,
       password: hashPw,
+      address,
+      phone
     });
 
     user.password = undefined;
     return res.status(201).json({
       message: "register successfully",
-      data: user,
+      data: user, 
     }); 
   } catch (error) {
     next(error);
@@ -55,29 +57,35 @@ const login = async (req, res) => {
         message: "email này k tồn tại !",
       });
     }
-    //ss pw
+    // So sánh mật khẩu
     const comparePw = await bcryptjs.compare(password, checkuser.password);
     if (!comparePw)
       return res.status(400).json({
         message: "password không đúng !",
       });
 
-    //generate tk
+    // Tạo token
     const token = jwt.sign({ _id: checkuser._id }, process.env.TOKEN_SECRET, {
       expiresIn: "1h",
     });
 
+    // Giải mã token để lấy id người dùng
+    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+    const userId = decodedToken._id;
+
+    // Xóa trường password trước khi trả về response
     checkuser.password = undefined;
+
     return res.status(200).json({
       message: "Login successfully !",
       token,
       user: checkuser,
+      userId: userId,
     });
   } catch (error) {
     next(error);
   }
 };
-
 module.exports = {
   register: register,
   login: login,

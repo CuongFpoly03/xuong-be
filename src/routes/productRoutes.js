@@ -1,6 +1,6 @@
 const express = require('express');
 const productController = require("../controllers/productController");
-const authController = require("../middlewares/auth")
+// const authController = require("../middlewares/auth")
 
 const route = express.Router();
 /**
@@ -66,6 +66,7 @@ const route = express.Router();
  */
 
 route.get("/", productController.list);
+route.get("/list", productController.ProductListPage);
 /**
  * @swagger
  * /products/{Id}:
@@ -100,7 +101,7 @@ route.get("/:Id", productController.getOne);
  *       '201':
  *         description: Created
  */
-route.post("/add",authController.checkPermission, productController.create);
+route.post("/add", productController.create);
 /**
  * @swagger
  * /products/delete/{Id}:

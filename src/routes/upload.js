@@ -5,9 +5,9 @@ const { uploadImage } = require("../config/cloudinary");
 const uploadControllers = new Uploadimage();
 route.post(
   "/cloudy",
-  uploadImage.single("image"),
-  //upload.array("image", 10)
-  uploadControllers.uploadSingleImage
+  // uploadImage.single("image"),
+  uploadImage.array("images", 10),
+  uploadControllers.uploadMultipleImages
 );
 route.delete("/clound/:id", uploadControllers.deleteImage);
 module.exports = route;

@@ -48,7 +48,7 @@ const remove = async (req, res) => {
     }
     res.status(200).json({ err: "delete success !" });
   } catch (error) {
-    console.log("errr");
+    console.log("err");
   }
 };
 

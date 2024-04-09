@@ -12,18 +12,18 @@ const checkPermission = async (req, res, next) => {
       }
       // decoded
       const data = jwt.verify(token, process.env.SECRET_KEY);
-      const user = await User.findById(data.id);
+      const user = await User.findById(data._id);
       if (!user) {
         return res.status(404).json({
           message: "Not Found",
         });
       }
     
-      if (user.role !== "admin") {
-        return res.status(403).json({
-          message: "Ban ko du quyen truy cap",
-        });
-      }
+      // if (user.role !== "admin") {
+      //   return res.status(403).json({
+      //     message: "Ban ko du quyen truy cap",
+      //   });
+      // }
       // user.id
       res.locals.id = user._id;
       next();

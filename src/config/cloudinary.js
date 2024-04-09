@@ -8,7 +8,7 @@ cloudinary.config({
 });
 const storage = new CloudinaryStorage({
   cloudinary,
-  allowedFormats: ["jpg", "jpeg", "png"],
+  allowedFormats: ["jpg", "jpeg", "png", "webp"],
   params: {
     folder: "Project-xuong",
   },
